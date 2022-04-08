@@ -55,19 +55,26 @@ export const constantRouterMap = [
         name: '添加讲师',
         component: () => import('@/views/edu/addTeacher'),
         meta: { title: '添加讲师', icon: 'tree' }
+      },
+      {
+        path: '/updateTeacher/:id',
+        name: '修改讲师',
+        component: () => import('@/views/edu/addTeacher'),
+        meta: { title: '修改讲师', icon: 'tree' },
+        hidden:true
       }
     ]
   },
 
   {
-    path: '/form',
+    path: '/subject',
     component: Layout,
     children: [
       {
-        path: 'index',
-        name: 'Form',
-        component: () => import('@/views/form/index'),
-        meta: { title: 'Form', icon: 'form' }
+        path: '/manageSubject',
+        name: '课程分类管理',
+        component: () => import('@/views/edu/manageSubject'),
+        meta: { title: '课程分类管理', icon: 'form' }
       }
     ]
   },
