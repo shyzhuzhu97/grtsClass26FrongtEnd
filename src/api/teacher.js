@@ -41,6 +41,12 @@ export default {
       data: teacher
     })
   },
-
+  findTeacherAll() {
+    return request({
+      // url: '/teacher/conditionPageQuery/'+currentPage+'/'+'limit',
+      url: `/teacher/findTeacherAll`,
+      method: 'get',
+    })
+  },
 
 }

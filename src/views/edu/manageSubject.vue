@@ -29,24 +29,28 @@
         </el-upload>
       </el-form-item>
     </el-form>
-    <el-input placeholder="输入关键字进行过滤" v-model="filterText"> </el-input>
-    <div class="block" >
-      <p>课程分类管理</p>
-      <el-tree
-        class="filter-tree"
-        :data="data"
-        show-checkbox
-        node-key="id"
-        default-expand-all
-        :expand-on-click-node="false"
-        :filter-node-method="filterNode"
-        ref="tree"
-        style="margin-left:50px"
-      >
+    <!-- <el-input
+      placeholder="输入关键字进行搜索"
+      v-model="filterText"
+      clearable
+      @keyup.enter.native="loadNode"
+    ></el-input> -->
+    <div class="block" style="margin-top: 50px">
+      <p>
+        课程分类管理<el-button
+          type="danger"
+          size="mini"
+          style="float: right; margin-right: 100px"
+          >批量删除</el-button
+        >
+      </p>
+
+      <el-tree node-key="id" :props="props" :load="loadNode" lazy show-checkbox>
         <span class="custom-tree-node" slot-scope="{ node, data }">
           <span>{{ node.label }}</span>
           <span>
-            <el-button type="text" size="mini" @click="() => append(data)">
+            <el-button type="text" size="mini" @click="() => update(node)">
+              <i class="el-icon-edit"></i>
               修改
             </el-button>
             <el-button
@@ -54,6 +58,7 @@
               size="mini"
               @click="() => remove(node, data)"
             >
+              <i class="el-icon-delete"></i>
               删除
             </el-button>
           </span>
@@ -64,114 +69,118 @@
 </template>
 
 <script>
+import subjectApi from "@/api/subject";
 export default {
-  watch: {
-    filterText(val) {
-      this.$refs.tree.filter(val);
-    },
-  },
   data() {
     return {
-      data: [
-        {
-          id: 1,
-          label: "一级 1",
-          children: [
-            {
-              id: 4,
-              label: "二级 1-1",
-              children: [
-                {
-                  id: 9,
-                  label: "三级 1-1-1",
-                },
-                {
-                  id: 10,
-                  label: "三级 1-1-2",
-                },
-              ],
-            },
-          ],
-        },
-        {
-          id: 2,
-          label: "一级 2",
-          children: [
-            {
-              id: 5,
-              label: "二级 2-1",
-            },
-            {
-              id: 6,
-              label: "二级 2-2",
-            },
-          ],
-        },
-        {
-          id: 3,
-          label: "一级 3",
-          children: [
-            {
-              id: 7,
-              label: "二级 3-1",
-            },
-            {
-              id: 8,
-              label: "二级 3-2",
-            },
-          ],
-        },
-      ],
-      //   data: JSON.parse(JSON.stringify(data)),
-      //   data: JSON.parse(JSON.stringify(data)),
+      expandNode: [],
       filterText: "",
+      props: {
+        label: "title",
+        isLeaf: "leaf",
+      },
     };
   },
+  created() {},
   methods: {
-    filterNode(value, data) {
-      if (!value) return true;
-      return data.label.indexOf(value) !== -1;
-    },
+    // 节点过滤
+    // filterNode(value, data) {
+    //   if (!value) {
+    //     return true;
+    //   } else {
+    //     //这里面的name是用来对比过滤的tree的属性 一般使用label 根据个人需要进行写
+    //     return data.title.indexOf(value) !== -1;
+    //   }
+    // },
+    // search() {
+    //   //如果输入的字符不为null或者“”则进行搜索
+    //   if (
+    //     this.filterText != null &&
+    //     this.filterText != "" &&
+    //     this.filterText != " "
+    //   ) {
+    //     //querySubject 根据课程名称进行过滤
+    //     subjectApi.querySubject(this.filterText).then((res) => {
+    //       if(res.data.subjectList != [] && res.data.subjectList != '' && res.data.subjectList != null && res.data.subjectList != undefined){
+    //         res.data.subjectList.forEach(r=>{
+    //           let node = this.$refs.tree.getNode(r.deptLid)
+    //           //部门节点存在 直接展开部门节点 过滤数据
+    //           if (node != null && node != undefined){
+    //             //如果节点展开 直接过滤
+    //             if(node.expanded == false || node.loaded == false){
+    //               //节点未展开 展开后过滤
+    //               node.expand()
+    //             }else{
+    //               return this.$refs.tree.filter(this.filterText)
+    //             }
+    //           }
+    //         })
+    //       }else {
+    //         //查无此人
+    //         this.$message({
+    //           message: "所要查询的课程信息不存在",
+    //           type: 'warning'
+    //         })
+    //       }
+
+    //     });
+    //   }
+    //   // }else {
+    //   //   //  不存在搜索数据 重新渲染树
+    //   //   this.treeNode.childNodes = []// 把存起来的node的子节点清空，不然会界面会出现重复树！
+    //   //   this.loadNode(this.treeNode, this.treeResolve)
+    //   //   // 将保存的组织id也清空
+    //   //   this.expandNode = []
+    //   //   return
+    //   // }
+    // },
     beforeRemove(file) {
       return this.$confirm(`确定移除 ${file.name}?`);
     },
-    append(data) {
-      const newChild = { id: id++, label: "testtest", children: [] };
-      if (!data.children) {
-        this.$set(data, "children", []);
+
+    loadNode(node, resolve) {
+      //加载一级课程分类
+      if (node.level === 0) {
+        subjectApi
+          .getSubjectOne()
+          .then((res) => {
+            return resolve(res.data.subjectList);
+            
+          })
+          .catch((err) => {
+            this.$message({
+              message: "连接超时",
+              type: "warning",
+            });
+          });
       }
-      data.children.push(newChild);
+      //加载二级课程分类
+      if (node.level == 1) {
+        subjectApi
+          .getSubjectTwo(node.data.id)
+          .then((res) => {
+            return resolve(res.data.subjectList);
+          })
+          .catch((err) => {
+            this.$message({
+              message: "连接超时",
+              type: "warning",
+            });
+          });
+      }
+      //节点下没有节点时，设置0.5秒后不再刷新
+      if (node.level == 2) {
+        setTimeout(() => {
+          resolve([]);
+        }, 500);
+      }
     },
-
+    update(node) {
+      console.log(node);
+    },
     remove(node, data) {
-      const parent = node.parent;
-      const children = parent.data.children || parent.data;
-      const index = children.findIndex((d) => d.id === data.id);
-      children.splice(index, 1);
-    },
-
-    renderContent(h, { node, data, store }) {
-      return (
-        <span class="custom-tree-node">
-          <span>{node.label}</span>
-          <span>
-            <el-button
-              size="mini"
-              type="text"
-              on-click={() => this.append(data)}
-            >
-              Append
-            </el-button>
-            <el-button
-              size="mini"
-              type="text"
-              on-click={() => this.remove(node, data)}
-            >
-              Delete
-            </el-button>
-          </span>
-        </span>
-      );
+      console.log(node);
+      console.log(data);
     },
   },
 };
@@ -184,7 +193,7 @@ export default {
   align-items: center;
   justify-content: space-between;
   font-size: 14px;
-  
+
   padding-right: 88px;
 }
 </style>

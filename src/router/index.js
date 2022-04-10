@@ -45,23 +45,23 @@ export const constantRouterMap = [
     meta: { title: '讲师管理', icon: 'example' },
     children: [
       {
-        path: '/showTeacher',
+        path: '/teacher/showTeacher',
         name: '展示讲师',
         component: () => import('@/views/edu/showTeacher'),
         meta: { title: '展示讲师', icon: 'table' }
       },
       {
-        path: '/addTeacher',
+        path: '/teacher/addTeacher',
         name: '添加讲师',
         component: () => import('@/views/edu/addTeacher'),
         meta: { title: '添加讲师', icon: 'tree' }
       },
       {
-        path: '/updateTeacher/:id',
+        path: '/teacher/updateTeacher/:id',
         name: '修改讲师',
         component: () => import('@/views/edu/addTeacher'),
         meta: { title: '修改讲师', icon: 'tree' },
-        hidden:true
+        hidden: true
       }
     ]
   },
@@ -71,7 +71,7 @@ export const constantRouterMap = [
     component: Layout,
     children: [
       {
-        path: '/manageSubject',
+        path: '/subject/manageSubject',
         name: '课程分类管理',
         component: () => import('@/views/edu/manageSubject'),
         meta: { title: '课程分类管理', icon: 'form' }
@@ -80,73 +80,49 @@ export const constantRouterMap = [
   },
 
   {
-    path: '/nested',
+    path: '/course',
     component: Layout,
-    redirect: '/nested/menu1',
-    name: 'Nested',
-    meta: {
-      title: 'Nested',
-      icon: 'nested'
-    },
+    redirect: '/course/showCourse',
+    name: '课程管理',
+    meta: { title: '课程管理', icon: 'example' },
     children: [
       {
-        path: 'menu1',
-        component: () => import('@/views/nested/menu1/index'), // Parent router-view
-        name: 'Menu1',
-        meta: { title: 'Menu1' },
-        children: [
-          {
-            path: 'menu1-1',
-            component: () => import('@/views/nested/menu1/menu1-1'),
-            name: 'Menu1-1',
-            meta: { title: 'Menu1-1' }
-          },
-          {
-            path: 'menu1-2',
-            component: () => import('@/views/nested/menu1/menu1-2'),
-            name: 'Menu1-2',
-            meta: { title: 'Menu1-2' },
-            children: [
-              {
-                path: 'menu1-2-1',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1'),
-                name: 'Menu1-2-1',
-                meta: { title: 'Menu1-2-1' }
-              },
-              {
-                path: 'menu1-2-2',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-2'),
-                name: 'Menu1-2-2',
-                meta: { title: 'Menu1-2-2' }
-              }
-            ]
-          },
-          {
-            path: 'menu1-3',
-            component: () => import('@/views/nested/menu1/menu1-3'),
-            name: 'Menu1-3',
-            meta: { title: 'Menu1-3' }
-          }
-        ]
+        path: '/course/showCourse',
+        name: '展示课程',
+        component: () => import('@/views/edu/showCourse'),
+        meta: { title: '展示课程', icon: 'table' }
       },
       {
-        path: 'menu2',
-        component: () => import('@/views/nested/menu2/index'),
-        meta: { title: 'menu2' }
+        path: '/course/addCourse',
+        name: '添加课程',
+        component: () => import('@/views/edu/addCourse'),
+        meta: { title: '添加课程', icon: 'tree' }
+      },
+      {
+        path: '/course/updateCourse/:id',
+        name: '修改课程',
+        component: () => import('@/views/edu/addCourse'),
+        meta: { title: '修改课程', icon: 'tree' },
+        hidden: true
+      },
+      {
+        path: '/course/addChapter',
+        name: '添加章节',
+        component: () => import('@/views/edu/addChapter'),
+        meta: { title: '添加章节', icon: 'tree' },
+        hidden: true
+      }
+      ,
+      {
+        path: '/course/publishCourse',
+        name: '发布课程',
+        component: () => import('@/views/edu/publishCourse'),
+        meta: { title: '发布课程', icon: 'tree' },
+        hidden: true
       }
     ]
   },
 
-  {
-    path: 'external-link',
-    component: Layout,
-    children: [
-      {
-        path: 'https://panjiachen.github.io/vue-element-admin-site/#/',
-        meta: { title: 'External Link', icon: 'link' }
-      }
-    ]
-  },
 
   { path: '*', redirect: '/404', hidden: true }
 ]

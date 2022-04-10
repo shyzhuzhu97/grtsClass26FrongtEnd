@@ -83,7 +83,7 @@
           >
         </template> -->
         <template slot-scope="scope">
-          <router-link :to="'/updateTeacher/' + scope.row.id">
+          <router-link :to="'/teacher/updateTeacher/' + scope.row.id">
             <el-button size="mini">修改</el-button>
           </router-link>
 
