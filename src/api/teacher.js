@@ -48,5 +48,13 @@ export default {
       method: 'get',
     })
   },
+  deleteIds(ids) {
+    return request({
+      // url: '/teacher/conditionPageQuery/'+currentPage+'/'+'limit',
+      url: `/teacher/deleteIds`,
+      method: 'post',
+      data: ids
+    })
+  },
 
 }

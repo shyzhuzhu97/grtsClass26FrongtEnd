@@ -201,6 +201,7 @@ export default {
         { value: 1, label: "首席讲师" },
         { value: 2, label: "高级讲师" },
       ],
+      teachers:[],
     };
   },
 
@@ -211,7 +212,6 @@ export default {
   methods: {
     teacherInfo(row){
       this.info = row
-      console.log(this.info);
     },
     showTeacher() {
       teacherApi
@@ -250,35 +250,37 @@ export default {
         });
     },
     //批量删除
-    handleSelectionChange(val) {},
+    handleSelectionChange(val) {
+      this.teachers = val;
+    },
     deleteIds() {
-      // let ids = [];
-      // for (let category in this.categories) {
-      //   ids.push(this.categories[category].id);
-      // }
-      // this.$http
-      //   .post("http://localhost:8081/category/deleteIds", ids)
-      //   .then((res) => {
-      //     if (res.data.code == 200) {
-      //       this.$message({
-      //         type: "success",
-      //         message: "删除成功!",
-      //       });
-      //       this.handleCurrentChange(1);
-      //       this.currentPage = 1;
-      //     } else if (res.data.code == 500) {
-      //       this.$message({
-      //         message: "删除失败",
-      //         type: "warning",
-      //       });
-      //     }
-      //   })
-      //   .catch((err) => {
-      //     this.$message({
-      //       message: "连接超时",
-      //       type: "warning",
-      //     });
-      //   });
+      let ids = [];
+      for (let teacher in this.teachers) {
+        ids.push(this.teachers[teacher].id);
+      }
+      teacherApi.deleteIds(ids)
+        .then((res) => {
+          if (res.code == 200) {
+            this.$message({
+              type: "success",
+              message: "删除成功!",
+            });
+            this.currentPage = 1;
+            this.showTeacher();
+            
+          } else if (res.code == 500) {
+            this.$message({
+              message: "删除失败",
+              type: "warning",
+            });
+          }
+        })
+        .catch((err) => {
+          this.$message({
+            message: "连接超时",
+            type: "warning",
+          });
+        });
     },
     handleDelete(row) {
       let deleteId = row.id;

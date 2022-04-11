@@ -35,7 +35,7 @@
       clearable
       @keyup.enter.native="loadNode"
     ></el-input> -->
-    <div class="block" style="margin-top: 50px">
+    <div style="margin-top: 50px;">
       <p>
         课程分类管理<el-button
           type="danger"
