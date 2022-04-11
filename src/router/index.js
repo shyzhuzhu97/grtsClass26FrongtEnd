@@ -106,7 +106,7 @@ export const constantRouterMap = [
         hidden: true
       },
       {
-        path: '/course/addChapter',
+        path: '/course/addChapter/:id',
         name: '添加章节',
         component: () => import('@/views/edu/addChapter'),
         meta: { title: '添加章节', icon: 'tree' },

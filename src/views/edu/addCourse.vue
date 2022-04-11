@@ -1,5 +1,6 @@
 <template>
   <div class="app-container">
+    <h2 style="text-align: center">{{ infoTitle }}</h2>
     <el-steps
       :space="500"
       :active="0"
@@ -13,20 +14,20 @@
     </el-steps>
     <el-form
       ref="form"
-      :model="courseInfo"
+      :model="course.eduCourse"
       label-width="80px"
       style="margin-top: 80px"
     >
       <el-form-item label="课程标题">
         <el-input
-          v-model="courseInfo.title"
+          v-model="course.eduCourse.title"
           placeholder="请输入课程标题"
         ></el-input>
       </el-form-item>
       <el-form-item label="课程类别">
         <template>
           <el-select
-            v-model="courseInfo.subjectParentId"
+            v-model="course.eduCourse.subjectParentId"
             placeholder="请选择课程一级分类"
             @change="getSubjectTwos"
           >
@@ -40,7 +41,7 @@
           </el-select>
 
           <el-select
-            v-model="courseInfo.subjectId"
+            v-model="course.eduCourse.subjectId"
             style="margin-left: 20px"
             placeholder="请选择课程二级分类"
           >
@@ -55,7 +56,10 @@
         </template>
       </el-form-item>
       <el-form-item label="课程讲师">
-        <el-select v-model="courseInfo.teacherId" placeholder="请选择讲师">
+        <el-select
+          v-model="course.eduCourse.teacherId"
+          placeholder="请选择讲师"
+        >
           <el-option
             v-for="item in teacherList"
             :key="item.id"
@@ -67,12 +71,13 @@
       </el-form-item>
       <el-form-item label="总课时">
         <el-input
-          v-model="courseInfo.lessonNum"
+          v-model="course.eduCourse.lessonNum"
           placeholder="请输入课时数"
           type="number"
           style="width: 200px"
         ></el-input>
       </el-form-item>
+
       <el-form-item label="课程封面">
         <el-upload
           class="avatar-uploader"
@@ -81,15 +86,27 @@
           :on-success="handleAvatarSuccess"
           :before-upload="beforeAvatarUpload"
         >
-          <img v-if="courseInfo.cover" :src="courseInfo.cover" class="avatar" />
+          <img
+            v-if="course.eduCourse.cover"
+            :src="course.eduCourse.cover"
+            class="avatar"
+          />
           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
+      </el-form-item>
+      <el-form-item label="课程价格">
+        <el-input
+          v-model="course.eduCourse.price"
+          placeholder="请输入课程价格"
+          type="number"
+          style="width: 200px"
+        ></el-input>
       </el-form-item>
       <!-- 课程简介 富文本编辑器 -->
       <el-form-item label="课程简介">
         <quill-editor
           ref="myQuillEditor"
-          v-model="courseInfo.des"
+          v-model="course.eduCourseDes.des"
           :options="editorOption"
         />
         <input type="file" @change="change" id="upload" style="display: none" />
@@ -122,18 +139,27 @@ export default {
   },
   data() {
     return {
+      infoTitle: "发布新课程",
       subjectOnes: [],
       subjectTwos: [],
       teacherList: [],
-      courseInfo: {
-        id: null,
-        title: "",
-        teacherId: null,
-        subjectId: null,
-        subjectParentId: null,
-        lessonNum: null,
-        cover:"",
+      course: {
+        eduCourse: {
+          id: null,
+          title: "",
+          teacherId: null,
+          subjectId: null,
+          subjectParentId: null,
+          lessonNum: null,
+          cover: "",
+          price: null,
+        },
+        eduCourseDes: {
+          des: "",
+          id: null,
+        },
       },
+
       // 富文本框参数设置
       editorOption: {
         modules: {
@@ -168,13 +194,134 @@ export default {
     };
   },
   created() {
-    this.getSubjectOnes();
-    this.getTeachers();
+    this.init();
+  },
+  watch: {
+    $route(to, from) {
+      this.init();
+    },
   },
   methods: {
+    init() {
+      //判断url上是否携带id
+      if (this.$route.params && this.$route.params.id) {
+        this.course.eduCourse.id = this.$route.params.id;
+        this.course.eduCourseDes.id = this.$route.params.id;
+        this.infoTitle = "修改课程";
+        this.getCourse(this.course.eduCourse.id);
+      } else {
+        this.infoTitle = "发布新课程";
+        this.course = {
+          eduCourse: {
+            id: null,
+            title: "",
+            teacherId: null,
+            subjectId: null,
+            subjectParentId: null,
+            lessonNum: null,
+            cover: "",
+            price: null,
+          },
+          eduCourseDes: {
+            des: "",
+            id: null,
+          },
+        };
+      }
+      this.getSubjectOnes();
+      this.getTeachers();
+    },
+    //添加课程
     submit() {
-      console.log(this.courseInfo);
-      this.$router.push("/course/addChapter");
+      //判断非空
+      if (this.course.eduCourse.title == "") {
+        this.$message({
+          message: "课程名称不能为空!",
+          type: "warning",
+        });
+        return;
+      } else if (this.course.eduCourse.teacherId == null) {
+        this.$message({
+          message: "课程讲师不能为空!",
+          type: "warning",
+        });
+        return;
+      } else if (this.course.eduCourse.subjectId == null) {
+        this.$message({
+          message: "课程二级分类不能为空!",
+          type: "warning",
+        });
+        return;
+      } else if (this.course.eduCourse.subjectParentId == null) {
+        this.$message({
+          message: "课程一级分类不能为空!",
+          type: "warning",
+        });
+        return;
+      } else if (this.course.eduCourse.cover == "") {
+        this.$message({
+          message: "课程封面不能为空!",
+          type: "warning",
+        });
+        return;
+      } else if (this.course.eduCourse.lessonNum == null) {
+        this.$message({
+          message: "课程时长不能为空!",
+          type: "warning",
+        });
+        return;
+      } else if (this.course.eduCourse.price == null) {
+        this.$message({
+          message: "课程价格不能为空!",
+          type: "warning",
+        });
+        return;
+      }
+
+      //通过course的id是否为null判断为添加还是删除
+      if (this.course.eduCourse.id == null) {
+        //走添加课程
+        courseApi
+          .addCourse(this.course)
+          .then((res) => {
+            this.course.eduCourse.id = res.data.courseId;
+            this.course.eduCourseDes.id = res.data.courseId;
+            this.$router.push("/course/addChapter/" + res.data.courseId);
+          })
+          .catch((err) => {
+            this.$message({
+              message: "连接超时",
+              type: "warning",
+            });
+          });
+      } else {
+        //走修改课程逻辑
+        courseApi
+          .updateCourse(this.course)
+          .then((res) => {
+            this.$router.push("/course/addChapter/" + res.data.courseId);
+          })
+          .catch((err) => {
+            this.$message({
+              message: "连接超时",
+              type: "warning",
+            });
+          });
+      }
+    },
+    getCourse(id) {
+      courseApi
+        .getCourseById(id)
+        .then((res) => {
+          this.course.eduCourse = res.data.eduCourse;
+          this.course.eduCourseDes = res.data.eduCourseDes;
+        })
+        .catch((err) => {
+          this.$message({
+            message: "连接超时",
+            type: "warning",
+          });
+        });
     },
     //得到课程一级分类
     getSubjectOnes() {
@@ -193,7 +340,7 @@ export default {
     //得到课程二级分类
     getSubjectTwos() {
       subjectApi
-        .getSubjectTwo(this.courseInfo.subjectParentId)
+        .getSubjectTwo(this.course.eduCourse.subjectParentId)
         .then((res) => {
           this.subjectTwos = res.data.subjectList;
         })
@@ -227,7 +374,6 @@ export default {
       formData.append("file", file);
       uploadImg(formData)
         .then((res) => {
-          console.log(res);
           let quill = this.$refs.myQuillEditor.quill;
           let length = quill.getSelection().index; //光标位置 // 插入图片  图片地址
           quill.insertEmbed(length, "image", res.data.imgPath); // 调整光标到最后
@@ -240,7 +386,7 @@ export default {
           });
         });
     },
-     //封面上传校验
+    //封面上传校验
     beforeAvatarUpload(file) {
       const isJPG = file.type === "image/jpeg";
       const isLt2M = file.size / 1024 / 1024 < 2;
@@ -255,7 +401,7 @@ export default {
     },
     //封面上传回显
     handleAvatarSuccess(res, file) {
-      this.courseInfo.cover = res.data.imgPath;
+      this.course.eduCourse.cover = res.data.imgPath;
     },
   },
 };
