@@ -315,6 +315,8 @@ export default {
         .then((res) => {
           this.course.eduCourse = res.data.eduCourse;
           this.course.eduCourseDes = res.data.eduCourseDes;
+          console.log(this.course.eduCourse);
+          this.getSubjectTwos();
         })
         .catch((err) => {
           this.$message({
@@ -339,17 +341,20 @@ export default {
     },
     //得到课程二级分类
     getSubjectTwos() {
-      subjectApi
-        .getSubjectTwo(this.course.eduCourse.subjectParentId)
-        .then((res) => {
-          this.subjectTwos = res.data.subjectList;
-        })
-        .catch((err) => {
-          this.$message({
-            message: "连接超时",
-            type: "warning",
+      if (this.course.eduCourse.subjectParentId != null) {
+        
+        subjectApi
+          .getSubjectTwo(this.course.eduCourse.subjectParentId)
+          .then((res) => {
+            this.subjectTwos = res.data.subjectList;
+          })
+          .catch((err) => {
+            this.$message({
+              message: "连接超时",
+              type: "warning",
+            });
           });
-        });
+      }
     },
     //得到讲师
     getTeachers() {

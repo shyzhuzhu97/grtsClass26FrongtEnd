@@ -1,5 +1,6 @@
 <template>
   <div class="app-container">
+    <h2 style="text-align: center">{{ infoTitle }}</h2>
     <el-steps
       :space="500"
       :active="2"
@@ -23,7 +24,9 @@
 <script>
 export default {
   data() {
-    return {};
+    return {
+      infoTitle: "发布课程",
+    };
   },
   created() {},
   methods: {
@@ -31,7 +34,7 @@ export default {
       this.$router.push("/course/showCourse");
     },
     back() {
-      this.$router.push("/course/addChapter");
+      this.$router.push("/course/addChapter/" + this.$route.params.id);
     },
   },
 };
